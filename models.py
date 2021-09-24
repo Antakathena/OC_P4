@@ -1,4 +1,14 @@
 # setup?
+from typing import List
+"""
+From Python 3.9 (PEP 585) onwards tuple, list and various other classes are now generic types.
+Using these rather than their typing counterpart is now preferred.
+From Python 3.9 you can now just do:
+
+def f(points: tuple[float, float]):
+    return map(do_stuff, points)
+    
+"""
 import datetime
 # constantes?
 
@@ -12,9 +22,7 @@ class Player:
     d'enregistrer et de modifier les informations sur les joueurs
     """
     def __init__(self, c_name, c_firstname, c_birthdate, c_gender, c_rating):
-        # attributs = name, firstname, birthdate, gender, rating
-        # à transformer en une liste pour chaque joueur?
-
+        """constructeur de Player"""
         print("Création d'un joueur...")
     
         self.name = c_name
@@ -22,55 +30,114 @@ class Player:
         self.birthdate = c_birthdate
         self.gender = c_gender
         self.rating = c_rating
+
+    @property
+    def birthdate(self):
+        return self._birthdate
     
-    def add_player():
+    @birthdate.setter
+    def birthdate(self, value):
+        assert isinstance(value, datetime.datetime), "Le contrôleur aurait du convertir cette donnée en datetime"
+        self._birthdate = value
 
-print ("lancement du programme...")
-
-Joueur1 = Player("Smith", "Joe", 25/12/1980, "homme", 2500 )
-print("Prénom de Joueur1 : {}".format (Joueur1.firstname))
-print("date de naissance de Joueur1 : {}".format (Joueur1.birthdate))
-print("Genre de Joueur1 : {}".format (Joueur1.gender))
-print("classement de Joueur1 : {}".format (Joueur1.rating))
+    @property
+    def rating(self):
+        return self._rating
 
 
+class Tournament:
+    """
+    définit la classe Tournament, qui permet :
+    de créer un nouveau tournoi
+    d'organiser et de conserver les informations des tournois
+    d'assembler les joueurs en paire selon les règles du tournoi Suisse (créé les nouveaux matchs)
+
+    """
+    def __init__(self, c_tournament_name, c_location, c_dates, c_players: List[Player], c_number_of_rounds,
+                c_timecontrol, c_description = None) :
+
+        self.tournament_name = c_tournament_name
+        self.location = c_location
+        self.dates = c_dates
+        self.players = c_players
+        self.number_of_rounds = c_number_of_rounds
+        self.timecontrol = c_timecontrol
+        self.description = c_description
+        self.rounds = []
+
+    @property
+    def nb_players(self):
+        return len(self.players)
+
+    @property
+    def players(self):
+        return self._players
+
+    @nb_players.setter
+    def players(self, players):
+        if len(players) % 2 != 0:
+            raise Exception("Le nombre de joueurs dans un tournoi doit être pair")
+        self._players = players
+
+    def create_pairs(self, c_players):
+        """ Créé des paires basées sur le classement des joueurs pour le round 1 puis sur leurs résultats"""
+        # ordonner la liste du plus fort au moins fort + enumerate?
+            list_by_rank = sorted(c_players, key = c_players[2])
+        
+        # si round 1 :
+           
+            # divise la liste (split) en 2 et associe 1-5, 2-6, etc (zip)
+            # retourne une liste des paires des matchs du round 1
+        # créer une liste où viendront s'ajouter tous les matchs joués (il nous faut les paires de joueurs déjà sorties)
+        # pour chaque joueur récupérer le score des rounds précédents, les additionner
+        # sinon (autre round que 1) :
+            # classer les joueurs en fonction de leur score
+            # si égalité ajoute le classement pour comparer chaque paire d'ex-equo
+            # retourne une liste ordonnée
+            # associe alors 1-2, 3-4 etc. (split et zip) = liste round n°x
+            # compare la liste créée et celles des rounds précedents)
+            # si le match 1 n'a pas eu lieu, il est ajouté à la nouvelle liste
+            # si le match n°2 n'a pas eu lieu, idem, etc.
+            # sinon, si le match a eu lieu, apparie avec le joueur avec le prochain joueur avec lequel il n'a pas encore joué dans la liste
+                # alors, créé une liste des joueurs non appareillés, réapparie les joueurs à partir de là 
+        # retourne 4 paires (en général) pour un round qui doivent aller dans match
+        # split puis zip
+
+class Round:
+    """
+    définit la classe Round, qui permet:
+    d'enregistrer automatiquement le début du tour (date et heure)
+    d'enregistrer automatiquement la fin du tour (date et heure)
+    """
+    def __init__(self, c_round_number, c_matchs_list, c_start_datetime, c_end_datetime):
+        self.round_number = c_round_number
+        self.matchs_list = c_matchs_list
+        self.start_datetime = c_start_datetime
+        self.end_datetime = c_end_datetime
 
 class Match:
     """
     définit la classe Match, qui permet:
-    d'enregistrer les parties jouées sous forme de liste
-    d'enregistrer les scores
+    d'enregistrer les parties jouées et les scores
     """
-    def__init__(self, ):
-    pass
+    def __init__(self, joueur_x, score_joueur_x, joueur_y, score_joueur_y):
+        self.joueur_x = joueur_x
+        self.score_joueur_x = score_joueur_x
+        self.joueur_y = joueur_y
+        self.score_joueur_y = score_joueur_y
 
-class Round :
-    """
-    définit la classe Round, qui permet:
-    d'assembler les joueurs en paire selon les règles du tournoi Suisse (créé les nouveaux matchs)
-    d'enregistrer automatiquement le début du tour (date et heure)
-    d'enregistrer automatiquement la fin du tour (date et heure)
-    """
-    def__init__(self):
-    pass
+    def record_score(self, score_x, score_y):
+        """ permet de saisir les scores des 2 joueurs du match à la fin de la partie et les ajoute aux listes"""
 
-class Turnament:
-    """
-    définit la classe Turnament, qui permet :
-    de créer un nouveau tournoi
-    d'organiser et de conserver les informations des tournois
-
-    """
-    def__init__(self):
-    pass
 
 class Report:
     """
     définit la classe Report, qui permet :
     d'afficher des listes contenant les informations conservées
     """
-    def__init__(self):
-    pass
+    def __init__(self):
+       pass
 
 
 if __name__ == "__main__":
+    pass
