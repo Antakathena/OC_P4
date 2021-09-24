@@ -12,6 +12,9 @@ def f(points: tuple[float, float]):
 import datetime
 # constantes?
 
+PLAYERS = []
+TOURNAMENTS = []
+
 # fonctions globales?
 
 # un module pour models, un pour views, un pour controlls?
@@ -21,15 +24,28 @@ class Player:
     définit la classe Player, qui permet:
     d'enregistrer et de modifier les informations sur les joueurs
     """
-    def __init__(self, c_name, c_firstname, c_birthdate, c_gender, c_rating):
+    def __init__(self, name, firstname, birthdate, gender, rating):
         """constructeur de Player"""
         print("Création d'un joueur...")
     
-        self.name = c_name
-        self.firstname = c_firstname
-        self.birthdate = c_birthdate
-        self.gender = c_gender
-        self.rating = c_rating
+        self.name = name
+        self.firstname = firstname
+        self.birthdate = birthdate
+        self.gender = gender
+        self.rating = rating
+
+    @staticmethod
+    def _init_debug():
+        joueur1 = Player("ATOME", "Adam", datetime.datetime.strptime("01/01/1970", "%d/%m/%Y"), "homme", 1010 )
+        joueur2 = Player( "BARDOT", "Brigitte", datetime.datetime.strptime("01/02/1980", "%d/%m/%Y"), "femme", 220 )
+        joueur3 = Player("CRUZ", "Chloé", datetime.datetime.strptime("01/01/1970", "%d/%m/%Y"), "femme", 1003 ) 
+        joueur4 = Player("DOUILLET", "David", datetime.datetime.strptime("01/01/1970", "%d/%m/%Y"), "homme", 4000 )
+        joueur5 = Player("ELITE", "Eddy", datetime.datetime.strptime("01/01/1970", "%d/%m/%Y"), "homme", 150 )
+        joueur6 = Player("FEZ", "Françoise", datetime.datetime.strptime("01/01/1970", "%d/%m/%Y"), "femme", 1600 )
+        joueur7 = Player("GEANT", "George", datetime.datetime.strptime("01/01/1970", "%d/%m/%Y"), "homme", 1070 )
+        joueur8 = Player("HULOT", "Harry", datetime.datetime.strptime("01/01/1970", "%d/%m/%Y"), "homme", 1008 )
+        for j in (joueur1, joueur2, joueur3, joueur4, joueur5, joueur6, joueur7, joueur8):
+            PLAYERS.append(j)
 
     @property
     def birthdate(self):
@@ -39,10 +55,6 @@ class Player:
     def birthdate(self, value):
         assert isinstance(value, datetime.datetime), "Le contrôleur aurait du convertir cette donnée en datetime"
         self._birthdate = value
-
-    @property
-    def rating(self):
-        return self._rating
 
 
 class Tournament:
@@ -79,10 +91,10 @@ class Tournament:
             raise Exception("Le nombre de joueurs dans un tournoi doit être pair")
         self._players = players
 
-    def create_pairs(self, c_players):
+    def create_pairs(self, players):
         """ Créé des paires basées sur le classement des joueurs pour le round 1 puis sur leurs résultats"""
         # ordonner la liste du plus fort au moins fort + enumerate?
-            list_by_rank = sorted(c_players, key = c_players[2])
+        playerslist_by_rank = sorted(players, key = players[2])
         
         # si round 1 :
            
@@ -103,6 +115,9 @@ class Tournament:
         # retourne 4 paires (en général) pour un round qui doivent aller dans match
         # split puis zip
 
+
+
+
 class Round:
     """
     définit la classe Round, qui permet:
@@ -114,6 +129,9 @@ class Round:
         self.matchs_list = c_matchs_list
         self.start_datetime = c_start_datetime
         self.end_datetime = c_end_datetime
+
+
+
 
 class Match:
     """
@@ -130,6 +148,8 @@ class Match:
         """ permet de saisir les scores des 2 joueurs du match à la fin de la partie et les ajoute aux listes"""
 
 
+
+
 class Report:
     """
     définit la classe Report, qui permet :
@@ -139,5 +159,11 @@ class Report:
        pass
 
 
+
+
+
 if __name__ == "__main__":
     pass
+
+if __debug__: # True si le programme a été appelé SANS l'option -o
+    Player._init_debug()

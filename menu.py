@@ -1,33 +1,36 @@
 
-print(
-"\n \n Programme de gestion de tournois d'échec \n\n Menu Principal\n")
+# avec une fonction :
 
-main_menu = {}
-main_menu['1'] = "Créer un nouveau tournoi" 
-main_menu['2'] = "Ajouter un joueur"
-main_menu['3'] = "Afficher un rapport"
-main_menu['4'] = "Modifier le classement d'un joueur"
-main_menu['5'] = "Quitter"
+def Afficher_Menu_Principal():
+    print(
+    "\n \n Programme de gestion de tournois d'échec \n\n Menu Principal\n")
 
-while True: 
-    options = main_menu.keys()
-    for entry in options: 
-        print(entry, main_menu[entry])
+    main_menu = {}
+    main_menu['1'] = "Créer un nouveau tournoi" 
+    main_menu['2'] = "Ajouter un joueur"
+    main_menu['3'] = "Afficher un rapport"
+    main_menu['4'] = "Modifier le classement d'un joueur"
+    main_menu['5'] = "Quitter"
 
-    selection = input("\nVeuillez indiquer votre choix:") 
-    if selection =='1': 
-        print("Nouveau tournoi")
-    elif selection == '2': 
-        print("Nouveau joueur")
-    elif selection == '3':
-        print("Liste des rapports disponibles")
-    elif selection == '4':
-        print("Modifier le rang d'un joueur")
-    elif selection == '5':
-        print("Quitter") 
-        break
-    else: 
-        print("\nChoix non valide. Veuillez indiquer le chiffre de la selection. \n\nMenu Principal:\n") 
+    while True: 
+        options = main_menu.keys()
+        for entry in options: 
+            print(entry, main_menu[entry])
+
+        selection = input("\nVeuillez indiquer votre choix:") 
+        if selection =='1': 
+            print("Nouveau tournoi")
+        elif selection == '2': 
+            print("Nouveau joueur")
+        elif selection == '3':
+            print("Liste des rapports disponibles")
+        elif selection == '4':
+            print("Modifier le rang d'un joueur")
+        elif selection == '5':
+            print("Quitter") 
+            break
+        else: 
+            print("\nChoix non valide. Veuillez indiquer le chiffre de la selection. \n\nMenu Principal:\n") 
 
 """ Or as a class"""
 
