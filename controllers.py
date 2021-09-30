@@ -1,8 +1,6 @@
 import datetime
 import models
-import menu 
-# comment faire pour ajouter des modèles au py_cache?
-# peut-on faire un dossier "models" avec un model par fichier, faut-il dedans un fichier init, à quoi ça sert?
+import menu
 
 """
 class Controller:
@@ -49,7 +47,8 @@ def Afficher_Menu_Principal():
 
 
     
-#def star_new_tournament(self):
+def start_new_tournament(self):
+    pass
 
 
 def validate_date(date, fmt_date):
