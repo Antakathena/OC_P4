@@ -1,9 +1,21 @@
 class Form():
+    """
+    Définit la classe des formulaires. Rôle : recueillir les infos joueurs et tournament et les ajouter à la db
+    On doit pouvoir y ajouter les questions
+    Elle doit afficher les questions
+    Elle doit vérifier les réponses
+    Elle doit enregistrer les réponses (et transformer si nécessaire)
+
+    Attr : les réponses?
+    Méthodes : init, add_question, remove_question?, getanswer, transform_into_another_type...,
+               save_answers, draw (est ce que ça veut bien dire créer la vue?
     
-
-
-
-
+    Ajouter une classe question :
+    Attr : les questions
+    Méthode : create list of question ?
+    
+    """
+   
 class Form(models.ModelForm):
     class Meta:
         model = UnModelAvecUnUserField

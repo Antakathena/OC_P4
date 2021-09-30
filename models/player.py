@@ -28,8 +28,8 @@ class Player:
         joueur8 = Player("HULOT", "Harry", datetime.datetime.strptime("01/01/1978", "%d/%m/%Y"), "homme", 2008 )
         for j in (joueur1, joueur2, joueur3, joueur4, joueur5, joueur6, joueur7, joueur8):
             PLAYERS.append(j)
-        type_de_joueur = type(joueur1)
-        print(f"type de joueur1, joueur2 etc...:{type_de_joueur}")
+        #type_de_joueur = type(joueur1)
+        #print(f"type de joueur1, joueur2 etc...:{type_de_joueur}")
 
     @property
     def birthdate(self):
@@ -47,33 +47,32 @@ class Player:
     def __str__(self):
             return f"{self.name}, {self.firstname}, {self.birthdate.strftime('%d/%m/%Y')}, {self.gender}, {self.rating}"
  
-        
+    def player_serialization(self): #arg supprimé : player
+        keys = ("nom","prénom","date de naissance","genre","rang")
+        values = str(self)
+        values_list = values.split(',')
+        dict_for_player = dict(zip(keys,values_list))
+        return dict_for_player   
+
 if __name__ == "__main__":
     print ("Essais sur players...\n")
 
 if __debug__: # True si le programme a été appelé SANS l'option -o
     Player._init_debug()
     print("\n\n Voici la liste de joueurs pour les tests :\n")
-    #for p in PLAYERS:
-    #print(p)
-
-    def player_serialization(player):
-        keys = ("nom","prénom","date de naissance","genre","rang")
-        values = str(player)
-        values_list = values.split(',')
-        dict_for_player = dict(zip(keys,values_list))
-        return dict_for_player
-
     for p in PLAYERS :
         print(p)
-
-    turnament_players = []
-    for p in PLAYERS :#in range(1,len(PLAYERS))
-        player_data = player_serialization(p)
-        turnament_players.append(player_data)
-
-    for tp in turnament_players:
-        print("\n\nFiche du joueur:")
-        for key, value in tp.items():
-            print(f"{key} : {value}")
    
+    def tournament_playerss(players) -> list :
+        tournament_players = []
+        for p in players:
+            player_data = p.player_serialization()
+            tournament_players.append(player_data)
+
+        for tp in tournament_players:
+            print("\n\nFiche du joueur:")
+            for key, value in tp.items():
+                print(f"{key} : {value}")
+    
+    tournament_playerss(players = PLAYERS)
+    
