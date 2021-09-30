@@ -1,3 +1,9 @@
+class Form():
+    
+
+
+
+
 class Form(models.ModelForm):
     class Meta:
         model = UnModelAvecUnUserField

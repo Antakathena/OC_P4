@@ -18,16 +18,18 @@ class Player:
 
     @staticmethod
     def _init_debug():
-        joueur1 = Player("ATOME", "Adam", datetime.datetime.strptime("01/01/1971", "%d/%m/%Y"), "homme", 1010 )
-        joueur2 = Player( "BARDOT", "Brigitte", datetime.datetime.strptime("01/02/1972", "%d/%m/%Y"), "femme", 220 )
-        joueur3 = Player("CRUZ", "Chloé", datetime.datetime.strptime("01/01/1973", "%d/%m/%Y"), "femme", 1003 ) 
-        joueur4 = Player("DOUILLET", "David", datetime.datetime.strptime("01/01/1974", "%d/%m/%Y"), "homme", 4000 )
-        joueur5 = Player("ELITE", "Eddy", datetime.datetime.strptime("01/01/1975", "%d/%m/%Y"), "homme", 150 )
-        joueur6 = Player("FEZ", "Françoise", datetime.datetime.strptime("01/01/1976", "%d/%m/%Y"), "femme", 1600 )
-        joueur7 = Player("GEANT", "George", datetime.datetime.strptime("01/01/1977", "%d/%m/%Y"), "homme", 1070 )
-        joueur8 = Player("HULOT", "Harry", datetime.datetime.strptime("01/01/1978", "%d/%m/%Y"), "homme", 1008 )
+        joueur1 = Player("ATOME", "Adam", datetime.datetime.strptime("01/01/1971", "%d/%m/%Y"), "homme", 2001 )
+        joueur2 = Player( "BARDOT", "Brigitte", datetime.datetime.strptime("01/02/1972", "%d/%m/%Y"), "femme", 1002 )
+        joueur3 = Player("CRUZ", "Chloé", datetime.datetime.strptime("01/01/1973", "%d/%m/%Y"), "femme", 2003 ) 
+        joueur4 = Player("DOUILLET", "David", datetime.datetime.strptime("01/01/1974", "%d/%m/%Y"), "homme", 2004 )
+        joueur5 = Player("ELITE", "Eddy", datetime.datetime.strptime("01/01/1975", "%d/%m/%Y"), "homme", 1005 )
+        joueur6 = Player("FEZ", "Françoise", datetime.datetime.strptime("01/01/1976", "%d/%m/%Y"), "femme", 2006 )
+        joueur7 = Player("GEANT", "George", datetime.datetime.strptime("01/01/1977", "%d/%m/%Y"), "homme", 1007 )
+        joueur8 = Player("HULOT", "Harry", datetime.datetime.strptime("01/01/1978", "%d/%m/%Y"), "homme", 2008 )
         for j in (joueur1, joueur2, joueur3, joueur4, joueur5, joueur6, joueur7, joueur8):
             PLAYERS.append(j)
+        type_de_joueur = type(joueur1)
+        print(f"type de joueur1, joueur2 etc...:{type_de_joueur}")
 
     @property
     def birthdate(self):
@@ -43,7 +45,7 @@ class Player:
             return fiche
     
     def __str__(self):
-            return f"{self.firstname} {self.name}, {self.gender}, né.e le {self.birthdate.strftime('%d/%m/%Y')}, rang {self.rating}"
+            return f"{self.name}, {self.firstname}, {self.birthdate.strftime('%d/%m/%Y')}, {self.gender}, {self.rating}"
  
         
 if __name__ == "__main__":
@@ -52,5 +54,26 @@ if __name__ == "__main__":
 if __debug__: # True si le programme a été appelé SANS l'option -o
     Player._init_debug()
     print("\n\n Voici la liste de joueurs pour les tests :\n")
-    for p in PLAYERS:
+    #for p in PLAYERS:
+    #print(p)
+
+    def player_serialization(player):
+        keys = ("nom","prénom","date de naissance","genre","rang")
+        values = str(player)
+        values_list = values.split(',')
+        dict_for_player = dict(zip(keys,values_list))
+        return dict_for_player
+
+    for p in PLAYERS :
         print(p)
+
+    turnament_players = []
+    for p in PLAYERS :#in range(1,len(PLAYERS))
+        player_data = player_serialization(p)
+        turnament_players.append(player_data)
+
+    for tp in turnament_players:
+        print("\n\nFiche du joueur:")
+        for key, value in tp.items():
+            print(f"{key} : {value}")
+   

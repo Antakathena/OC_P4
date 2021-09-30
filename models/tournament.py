@@ -19,7 +19,7 @@ class Tournament:
     d'assembler les joueurs en paire selon les règles du tournoi Suisse (créé les nouveaux matchs)
 
     """
-    def __init__(self, c_tournament_name, c_location, c_dates, c_players: List[Player], 
+    def __init__(self, c_tournament_name, c_location, c_dates, c_players: list[Player], 
                 c_timecontrol, c_number_of_rounds=4, c_description = None) :
 
         self.tournament_name = c_tournament_name
@@ -38,7 +38,7 @@ class Tournament:
     
     def __str__(self):
             # show the number of players instead of all the list? how?
-            return f"({self.tournament_name}, à {self.location}, {self.dates}, {self.number_of_rounds}, {self.description})"
+            return f"({self.tournament_name}, à : {self.location}, {self.dates}, {self.number_of_rounds}, {self.description})"
 
     @property
     def nb_players(self):
@@ -54,9 +54,8 @@ class Tournament:
             raise Exception("Le nombre de joueurs dans un tournoi doit être pair")
         self._players = players
 
-    
     def create_pairs(self, this_tournament_players): 
-        """ Créé des paires basées sur le classement des joueurs pour le round 1 puis sur leurs résultats"""
+        """Créé des paires basées sur le classement des joueurs pour le round 1 puis sur leurs résultats"""
         
         # si round 1 :
         players_by_rating = sorted(this_tournament_players, key =lambda k: k[rating])
@@ -81,6 +80,14 @@ if __debug__: # True si le programme a été appelé SANS l'option -o
     type_de_PLAYERS = type(PLAYERS)
     print(type_de_PLAYERS)
     print(PLAYERS[3])
+    type_de_PLAYERS3 = type(PLAYERS[3])
+    print(type_de_PLAYERS3)
+    infos_joueur = str(PLAYERS[3])
+    print(infos_joueur)
+    type_de_infos_joueur = type(infos_joueur)
+    print(type_de_infos_joueur)
+
+    Tournament.create_dict(playerdata = infos_joueur)
 
     print("\n\n Voici les informations du tournoi test :\n")    
     for t in TOURNAMENTS:
