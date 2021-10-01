@@ -1,7 +1,7 @@
 
 # avec une fonction :
 
-def Afficher_Menu_Principal():
+def View_Main_Menu():
     print(
     "\n \n Programme de gestion de tournois d'échec \n\n Menu Principal\n")
 
@@ -34,7 +34,7 @@ def Afficher_Menu_Principal():
 
 """ Or as a class"""
 
-class Menu:
+class Menu():
     def __init__(self, name, items=None):
         self.name = name
         self.items = items or []

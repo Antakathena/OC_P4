@@ -19,16 +19,16 @@ class Tournament:
     d'assembler les joueurs en paire selon les règles du tournoi Suisse (créé les nouveaux matchs)
 
     """
-    def __init__(self, c_tournament_name, c_location, c_dates, c_players: list[Player], 
-                c_timecontrol, c_number_of_rounds=4, c_description = None) :
+    def __init__(self, tournament_name, location, dates,timecontrol,
+                 number_of_rounds=4, description = None, players: list[Player]=PLAYERS):
 
-        self.tournament_name = c_tournament_name
-        self.location = c_location
-        self.dates = c_dates
-        self.players = c_players
-        self.number_of_rounds = c_number_of_rounds
-        self.timecontrol = c_timecontrol
-        self.description = c_description
+        self.tournament_name = tournament_name
+        self.location = location
+        self.dates = dates
+        self.players = players
+        self.number_of_rounds = number_of_rounds
+        self.timecontrol = timecontrol
+        self.description = description
         self.rounds = []
         """   
         @property
@@ -46,47 +46,91 @@ class Tournament:
             self._players = players # là j'ai peut-être fait une anerie, debuggage explosif
             #mais je ne comprends pas cette dernière ligne
         """
+
     def __repr__(self):
-            return f"({self.tournament_name}, {self.location}, {self.dates}, {self.players}, {self.number_of_rounds}, {self.description})"
+        return f"({self.tournament_name}, {self.location}, {self.dates},{self.timecontrol}, {self.number_of_rounds}, {self.description},{self.players})"
             
     def __str__(self):
-            return f"({self.tournament_name}, {self.location}, {self.dates},{self.players}, {self.number_of_rounds}, {self.description})"
+        return f"({self.tournament_name}, {self.location}, {self.dates},{self.timecontrol}, {self.number_of_rounds}, {self.description},{self.players})"
 
-    def tournament_players(self, c_players) -> list :
+    def tournament_players(self, players) -> list :
+        """ renvoie la liste des dict player_data comprenant nom, prénom, date de naissance, genre, rang """
         tournament_players = []
-        for p in c_players:
+        for p in players:
             player_data = p.player_serialization()
             tournament_players.append(player_data)
-
+        return tournament_players
+    
+    def t_players_view_infos(self,tournament_players):
+        """ affiche les fiches infos des joueurs du tournoi"""
         for tp in tournament_players:
-            print("\n\nFiche du joueur:")
+            print("\nFiche du joueur:")
             for key, value in tp.items():
                 print(f"{key} : {value}")
 
-    def create_pairs(self, tournament_players): 
-        """Créé des paires basées sur le classement des joueurs pour le round 1 puis sur leurs résultats"""
-        # si round 1  key =lambda k: k["rang"] :
+    def create_list_by_rating(self,tournament_players):
+        """tri les joueurs du tournoi par classement/rang"""
+        players_by_rating = sorted(tournament_players, key =lambda k: k["rang"], reverse=True)
+        # rendre player_by_rating lisible (vue?) ou une classe pour améliorer l'affichage__str__?
+                
+        print("\n\nListe des joueurs du tournoi par ordre de classement :\n")
 
-        players_by_rating = sorted(tournament_players, key =["rang"])
+        rating_list_view =[]
+        for pbr in players_by_rating:
+            rating = pbr["rang"]
+            firstname = pbr["prénom"]
+            name = pbr["nom"]
+            wanted_view = f"{firstname} {name}, ({rating})"
+            rating_list_view.append(wanted_view)            
+        return rating_list_view
+
+    def create_pairs_round1(self,players_by_rating): 
+        """Créé des matchs basés sur le classement des joueurs pour le round 1"""
+
+        # une fonction "split" quand le reste marchera? sert aussi plus tard
         half = len(players_by_rating)//2
         first_half = players_by_rating[:half]
         second_half = players_by_rating[half:]
+
+        # création des matchs
+        matchs_round1 = zip(first_half, second_half)
+
+        # vue des matchs
+        print("\nEt les matchs du round 1 :\n")
+        
         for first_half, second_half in zip(first_half, second_half):
             print(f"Match entre {first_half} et {second_half}")
 
+    def create_pairs2(self, tournament_players):
+        pass
         
     def t_serialization(self):
-        keys = ("nom","lieu","dates","joueurs du tournoi","contrôle du temps", "nombre de tours", "description")
-        values = str(self)
-        values_list = values.split(',')
+        keys = ("nom","lieu","dates","contrôle du temps", "nombre de tours", "description")
+        values = f"{self.tournament_name}, {self.location}, {self.dates},{self.timecontrol}, {self.number_of_rounds}, {self.description}"
+        values_list = values.split(',') # on doit laisser players sous forme de liste séparée
         dict_for_t = dict(zip(keys,values_list))
         return dict_for_t
 
     @staticmethod
     def _init_debug():
-        test_tournament1 = Tournament("Tournoi de Paris", "Paris", "Du 10 au 12 juin 2022", PLAYERS, "blitz", 4,"C'est pas gagné!")
-        # problème : la description est prise pour le nombre de round si on ne les précise pas
-        test_tournament2 = Tournament("Tournoi des Tsars",  "Moscou", "Le 15 Août 2022", PLAYERS, 2,"bagare" )
+        test_tournament1 = Tournament(
+        tournament_name="Tournoi de Paris",
+        location="Paris",
+        dates="Du 10 au 12 juin 2022",
+        players = PLAYERS,
+        timecontrol="blitz",
+        number_of_rounds=4,
+        description="C'est pas gagné!")
+        
+        test_tournament2 = Tournament(
+        tournament_name="Tournoi des Tsars",
+        location="Moscou",
+        dates="Le 15 août 2022",
+        players = PLAYERS,
+        timecontrol="bagare", # erreurs exprès à traiter avec except etc
+        number_of_rounds=2, # erreurs exprès à traiter avec except etc
+        description="")
+
         for t in (test_tournament1, test_tournament2):
             TOURNAMENTS.append(t)
 
@@ -97,23 +141,35 @@ if __name__ == "__main__":
 if __debug__: # True si le programme a été appelé SANS l'option -o
     Tournament._init_debug()
     print("\n Voici les informations du tournoi test :\n")    
-    for t in TOURNAMENTS:
-        
-        print(t)
-
     present_tournament = TOURNAMENTS[0]
-    t_infos = present_tournament.t_serialization()
-    t_players = t_infos.get("joueurs")
-    print(t_players)
-    #type_present_t = type(present_tournament)
-    #print(type_present_t)
-    tournament_players = present_tournament.tournament_players(t_players)
+       
+    # vue en propre sans les joueurs:
+    t_infos_dict = present_tournament.t_serialization()
+    print("\n\nInfos du présent tournoi:\n")
+    for key, value in t_infos_dict.items():
+        print(f"{key} : {value}")
+
+    # maintenant les joueurs :
+    t_players = present_tournament.tournament_players(PLAYERS) # comment il peut récupérer l'info self.player tout seul?
+    print("\nLes joueurs du tournoi sont:")
+    t_players_view_infos = present_tournament.t_players_view_infos(t_players)
     
-    matchs_round1 = present_tournament.create_pairs()
+    t_players_by_rating = present_tournament.create_list_by_rating(t_players)
+    for pbr in t_players_by_rating:
+        print(pbr)
+
+    # création des matchs du round 1 :
+    matchs_round1 = present_tournament.create_pairs_round1(t_players_by_rating)
+
+    print("Saisie des scores :")
+    for pbr in t_players_by_rating: # à remplacer par l'ordre alphabétique ou les paires des matchs
+        joueur = str(pbr)[:-9]
+        print(f"Veuillez saisir le score de {joueur} :")
+        score_joueur = input()
+        print(f"Le score de {joueur} est de {score_joueur}") #comment demander validation?
+    # et il faut sauver
 
 
-
-            # retourne une liste des paires des matchs du round 1
         # créer une liste où viendront s'ajouter tous les matchs joués (il nous faut les paires de joueurs déjà sorties)
         # pour chaque joueur récupérer le score des rounds précédents, les additionner
         # sinon (autre round que 1) :
