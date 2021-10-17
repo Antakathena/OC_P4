@@ -1,44 +1,80 @@
+from typing import Callable, List
+
+from OC_P4.models.player import Player
+
+
+class Field:
+    def __init__(self, validate: Callable, convert: Callable, question_view):
+        self.validate = validate
+        self.convert = convert
+        self.answer = None
+        self.question_view = question_view
+
+    def ask(self):
+        while True:
+            self.question_view.draw()
+            answer = input()
+            if self.validate(answer):
+                try:
+                    self.answer = self.convert(answer)
+                    return self.answer
+                except (TypeError, ValueError):
+                    pass
+
+
+class QuestionView:
+    def __init__(self, question):
+        self.question = question
+
+    def draw(self):
+        print(self.question, end="> ")
+
 class Form():
     """
-    Définit la classe des formulaires. Rôle : recueillir les infos joueurs et tournament et les ajouter à la db
+    Définit la classe des formulaires.
+    Rôle : recueillir les infos et générer une action retour (u.a poss les ajouter à la db)
     On doit pouvoir y ajouter les questions
     Elle doit afficher les questions
     Elle doit vérifier les réponses
     Elle doit enregistrer les réponses (et transformer si nécessaire)
 
-    Attr : les réponses?
+    Attr : les questions, les réponses (selon l'implémentation du formulaire)
     Méthodes : init, add_question, remove_question?, getanswer, transform_into_another_type...,
                save_answers, draw (est ce que ça veut bien dire créer la vue?
-    
-    Ajouter une classe question :
-    Attr : les questions
-    Méthode : create list of question ?
-    
+
     """
-   
-class Form(models.ModelForm):
-    class Meta:
-        model = UnModelAvecUnUserField
-        fields = ('liste', 'avec', 'les', 'champs', 'du', 'formulaire')
+    def __init__(self, fields: List[Field], callback):
+        self.fields = fields
+        self.callback = callback
 
-    def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request')
-        super().__init__(*args, **kwargs)
+    def execute(self):
+        for field in self.fields:
+            field.ask()
+        self.callback(self.fields)
 
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        # C'est ici, dans save() qu'on récupère l'utilisateur à partir de la request
-        instance.user = self.request.user
-        if commit:
-            instance.save()
-        return instance
 
-class FormView(CreateView):   
-    form_class = MonSuperForm
-    template_name = 'chemin/vers/mon/template' 
-    success_url = reverse_lazy('home') 
+class FormPlayer(Form):
+    def __init__(self, callback=Player):
+        super().__init__(
+                fields=[Field(str.isdigit, int, QuestionView("Age du capitaine"))],
+                callback=callback
+            )
+        
 
-    def get_form_kwargs(self): 
-        kwargs = super().get_form_kwargs() 
-        kwargs['request'] = self.request
-        return kwargs
+formulaire_ajouter_tournoi = Form(champs=[...])
+
+formulaire_ajouter_joueurs_new = FormPlayer.prendre_exemplaire()
+formulaire_ajouter_joueurs_new.draw()
+formulaire_ajouter_joueurs_new.executer()
+# données stockées dans le formulaire
+
+
+"""   
+def save(self, commit=True):
+    # trouver comment sauvegarder à partir des champs remplis
+    instance = super().save(commit=False)
+    instance.player = self.request.player
+    if commit:
+        instance.save()
+    return instance
+"""

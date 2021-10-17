@@ -1,6 +1,6 @@
 import datetime
 import models
-import menu
+import abc
 
 """
 class Controller:
@@ -14,7 +14,24 @@ class Controller:
         # views
         self.view = None
 """   
-# pour l'instant fonction   
+
+class Controller(abc.ABC):
+    @abc.abstractmethod
+    def execute_action(self):
+        # Détermination de l'action appropriée selon l'état interne de l'objet et exécution
+        raise NotImplementedError
+
+
+# A supprimer, pour l'exemple simplement
+class PrintController(Controller):
+    def __init__(self, to_print):
+        self.to_print = to_print
+
+    def execute_action(self):
+        print(self.to_print)
+
+
+""" pour l'instant fonction   
 def Afficher_Menu_Principal():
     
     print("\n \n Programme de gestion de tournois d'échec \n\n Menu Principal\n")
@@ -44,7 +61,7 @@ def Afficher_Menu_Principal():
             break
         else: 
             print("\nChoix non valide. Veuillez indiquer le chiffre de la selection. \n\nMenu Principal:\n") 
-
+"""
 
     
 def start_new_tournament(self):

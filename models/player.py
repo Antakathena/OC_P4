@@ -53,6 +53,7 @@ class Player:
         values_list = values.split(',')
         dict_for_player = dict(zip(keys,values_list))
         return dict_for_player   
+        
 
 if __name__ == "__main__":
     print ("Essais sur players...\n")
@@ -62,17 +63,3 @@ if __debug__: # True si le programme a été appelé SANS l'option -o
     print("\n\n Voici la liste de joueurs pour les tests :\n")
     for p in PLAYERS :
         print(p)
-   
-    def tournament_playerss(players) -> list :
-        tournament_players = []
-        for p in players:
-            player_data = p.player_serialization()
-            tournament_players.append(player_data)
-
-        for tp in tournament_players:
-            print("\n\nFiche du joueur:")
-            for key, value in tp.items():
-                print(f"{key} : {value}")
-    
-    tournament_playerss(players = PLAYERS)
-    

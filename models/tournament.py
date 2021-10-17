@@ -30,87 +30,60 @@ class Tournament:
         self.timecontrol = timecontrol
         self.description = description
         self.rounds = []
-        """   
-        @property
-        def nb_players(self):
-            return len(self.players)
-
-        @property
-        def players(self):
-            return self._players
-
-        @nb_players.setter
-        def players(self, players):
-            if len(players) % 2 != 0:
-                raise Exception("Le nombre de joueurs dans un tournoi doit être pair")
-            self._players = players # là j'ai peut-être fait une anerie, debuggage explosif
-            #mais je ne comprends pas cette dernière ligne
-        """
-
+   
     def __repr__(self):
         return f"({self.tournament_name}, {self.location}, {self.dates},{self.timecontrol}, {self.number_of_rounds}, {self.description},{self.players})"
             
     def __str__(self):
         return f"({self.tournament_name}, {self.location}, {self.dates},{self.timecontrol}, {self.number_of_rounds}, {self.description},{self.players})"
 
-    def tournament_players(self, players) -> list :
-        """ renvoie la liste des dict player_data comprenant nom, prénom, date de naissance, genre, rang """
-        tournament_players = []
-        for p in players:
-            player_data = p.player_serialization()
-            tournament_players.append(player_data)
-        return tournament_players
-    
-    def t_players_view_infos(self,tournament_players):
-        """ affiche les fiches infos des joueurs du tournoi"""
-        for tp in tournament_players:
-            print("\nFiche du joueur:")
-            for key, value in tp.items():
-                print(f"{key} : {value}")
-
-    def create_list_by_rating(self,tournament_players):
-        """tri les joueurs du tournoi par classement/rang"""
-        players_by_rating = sorted(tournament_players, key =lambda k: k["rang"], reverse=True)
-        # rendre player_by_rating lisible (vue?) ou une classe pour améliorer l'affichage__str__?
-                
-        print("\n\nListe des joueurs du tournoi par ordre de classement :\n")
-
-        rating_list_view =[]
-        for pbr in players_by_rating:
-            rating = pbr["rang"]
-            firstname = pbr["prénom"]
-            name = pbr["nom"]
-            wanted_view = f"{firstname} {name}, ({rating})"
-            rating_list_view.append(wanted_view)            
-        return rating_list_view
-
-    def create_pairs_round1(self,players_by_rating): 
-        """Créé des matchs basés sur le classement des joueurs pour le round 1"""
-
-        # une fonction "split" quand le reste marchera? sert aussi plus tard
-        half = len(players_by_rating)//2
-        first_half = players_by_rating[:half]
-        second_half = players_by_rating[half:]
-
-        # création des matchs
-        matchs_round1 = zip(first_half, second_half)
-
-        # vue des matchs
-        print("\nEt les matchs du round 1 :\n")
-        
-        for first_half, second_half in zip(first_half, second_half):
-            print(f"Match entre {first_half} et {second_half}")
-
-    def create_pairs2(self, tournament_players):
-        pass
-        
     def t_serialization(self):
         keys = ("nom","lieu","dates","contrôle du temps", "nombre de tours", "description")
         values = f"{self.tournament_name}, {self.location}, {self.dates},{self.timecontrol}, {self.number_of_rounds}, {self.description}"
         values_list = values.split(',') # on doit laisser players sous forme de liste séparée
         dict_for_t = dict(zip(keys,values_list))
         return dict_for_t
+        
+    def tournament_players(self) -> list :
+        """ renvoie la liste des dict player_data comprenant nom, prénom, date de naissance, genre, rang """
+        tournament_players = []
+        for p in self.players:
+            player_data = p.player_serialization()
+            tournament_players.append(player_data)
+        return tournament_players
+    
+    # def t_players_view_infos déplacé vers view.py
 
+    def create_list_by_rating(self):
+        """tri les joueurs du tournoi par classement/rang"""
+        players_by_rating = sorted(self._players, key=lambda k: k["rang"], reverse=True)
+        # rendre player_by_rating lisible (vue?) ou une classe pour améliorer l'affichage__str__?
+                
+        return players_by_rating
+
+    def create_pairs_round1(self): 
+        """Créé des matchs basés sur le classement des joueurs pour le round 1"""
+        # une fonction "split" quand le reste marchera? sert aussi plus tard
+
+        if len(self.players) % 2 != 0:
+            raise Exception("Impossible de générer des appairages avec un nombre impair de joueurs")
+
+        half = len(self.players) // 2
+        first_half = self.players_by_rating[:half]
+        second_half = self.players_by_rating[half:]
+
+        # création des matchs
+        matchs_round1 = zip(first_half, second_half)
+
+        # liste des matchs
+        pairings = []
+        for first_half, second_half in zip(first_half, second_half):
+            pairings.append(first_half, second_half)
+        return pairings
+
+    def create_pairs2(self, tournament_players):
+        pass
+        
     @staticmethod
     def _init_debug():
         test_tournament1 = Tournament(
@@ -143,14 +116,14 @@ if __debug__: # True si le programme a été appelé SANS l'option -o
     print("\n Voici les informations du tournoi test :\n")    
     present_tournament = TOURNAMENTS[0]
        
-    # vue en propre sans les joueurs:
+    # vue des infos du tournoi en propre sans les joueurs:
     t_infos_dict = present_tournament.t_serialization()
     print("\n\nInfos du présent tournoi:\n")
     for key, value in t_infos_dict.items():
         print(f"{key} : {value}")
 
     # maintenant les joueurs :
-    t_players = present_tournament.tournament_players(PLAYERS) # comment il peut récupérer l'info self.player tout seul?
+    t_players = present_tournament.tournament_players() # comment il peut récupérer l'info self.player tout seul?
     print("\nLes joueurs du tournoi sont:")
     t_players_view_infos = present_tournament.t_players_view_infos(t_players)
     
