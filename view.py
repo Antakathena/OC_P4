@@ -4,9 +4,7 @@ import abc
 class View(abc.ABC):
     @abc.abstractmethod
     def draw(self):
-        # méthode appelée par un contrôleur
-        # affiche des choses à l'écran
-        # les renvoie au contrôleur
+        """ méthode appelée par un contrôleur, affiche des choses à l'écran, les renvoie au contrôleur"""
         raise NotImplementedError
 
 
@@ -44,16 +42,19 @@ class ChoiceView(View):
     def draw(self, position):
         print(f'{position}/ {self.name}')
 
-"""
+
 class FromView(View):
-    def draw(self):
-        for i, question in enumerate(self.menu_controller.questions): #attention 1 question = 1 réponse
-            print(question.draw(position=i))
-        return input("Votre choix : ")
-"""
+    pass
+
+
+class ReportView(View):
+    pass
+
+
 class PlayerView(View):
     """ Affiche les infos venant du model Player"""
     pass
+
 
 class TournamentView(View):
     """ Affiche les infos venant du model Tournament"""

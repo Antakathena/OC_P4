@@ -87,7 +87,6 @@ class PlayerMenu(Menu):
                     menu_view=TransitionMenuView(MenuView(start=1),
                     "Menu Principal > Menu Tournoi")),
                     ChoiceView("Menu Tournoi")),
-    pass
 
 class LaunchTournamentMenu(Menu):
     pass
