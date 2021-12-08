@@ -3,13 +3,14 @@ import abc
 from dataclasses import dataclass, field
 import datetime
 import itertools
+from pprint import pprint
 from tinydb import Query, operations
 import dbtools
 
 db = dbtools.db
 
 
-@dataclass
+@dataclass  # changer pour protocol?
 class Model(abc.ABC):
     """Classe abstraite: définit les méthodes communes à tous les modèles"""
 
@@ -51,7 +52,7 @@ class Player(Model):
             birthdate_indication = "née le"
             ranking_indication = "classée"
         return f"{titre} {self.firstname} {self.name},{birthdate_indication}\
-     {self.birthdate.strftime('%d/%m/%Y')},{ranking_indication} {self.rating}"
+{self.birthdate.strftime('%d/%m/%Y')},{ranking_indication} {self.rating}"
 
 
 @dataclass
@@ -149,7 +150,7 @@ class Tournament(Model):
             'ELITE',
             'FEZ',
             'GEANT',
-            'HULOT'
+            'HIBOU'
             ]
             )
         database.change("name", tournoi, "matches", [])
@@ -216,7 +217,7 @@ class Shift(Model):
             return other_propositions
 
     def sort_by_scores(self, total_scores):
-        """ 
+        """
         Entrée: variable total_scores (dict. k = joueur, v = score total durant ce tournoi)
         Sortie: liste de dict. (k = 'name', 'fistname', 'rating', 'total_score')
 
@@ -250,7 +251,7 @@ class Shift(Model):
 
         # trier ceux avec un score égal selon leur classement:
         groups = []  # -> liste de listes correspondant aux joueurs qui ont eu le même score
-        for key, group in players_group:
+        for _, group in players_group:
             groups.append(list(group))
 
         sorted_list_by_score_and_rating = []  # -> dict des joueurs trié par scores égaux et classement
@@ -261,22 +262,24 @@ class Shift(Model):
         return sorted_list_by_score_and_rating
 
     def simplify_list(self, list_of_dict):
-        # On ne garde que les noms:
-        sorted_names_list = []  # -> noms des joueurs triés par scores puis classement pour un même score
+        """
+        On ne garde que les noms des joueurs triés
+        par scores puis classement pour un même score
+        """
+        sorted_names_list = []
         for elt in list_of_dict:
             name = elt.get('name')
             sorted_names_list.append(name)
         return sorted_names_list
 
     def suggested_matches(self, sorted_names_list):
-        # liste des matchs proposés: associer les joueurs par 2:
+        """liste des matchs proposés: associer les joueurs par 2"""
         joueurs_x = sorted_names_list[0::2]
         joueurs_y = sorted_names_list[1::2]
         suggested_matches = []
         for joueurs_x, joueurs_y in zip(joueurs_x, joueurs_y):
             suggested_match = joueurs_x, joueurs_y
             suggested_matches.append(suggested_match)
-        # print(f'\nMatchs proposés: {suggested_matches}')
         return suggested_matches
 
     def get_played_matches(self):
@@ -297,7 +300,8 @@ class Shift(Model):
     def matches_not_ok(self, suggested_matches, played_matches):
         """
         Entrée: une liste de tuples
-        Renvoie True si les matches proposés n'ont pas été joués, False sinon"""
+        Renvoie True si les matches proposés n'ont pas été joués, False sinon
+        """
         set_propositions = set(suggested_matches)
         result = set.intersection(set_propositions, set(played_matches))
         print(f'matchs déjà joués dans les proposés: {result}')
@@ -307,9 +311,8 @@ class Shift(Model):
             return False
 
     def propose_other_matches(self, sorted_names_list, played_matches):
-        """ Si des matches parmis les proposés ont déjà été joués"""
-        # le problème c'est que si il n'y a qu'un match déjà joué, on a plus d'adversaires à échanger !
-        # donc si des matchs ont déjà été joués
+        """ Si des matches parmis les proposés ont déjà été joués
+        on repart de la liste complète pour pouvoir associer tout le monde"""
         suggested_matches = []
         protagonists = sorted_names_list[0::2]
         search_opponent = len(protagonists)
@@ -321,7 +324,7 @@ class Shift(Model):
             # for _ in range(search_opponent):
             match = (joueur_x, antagonist)
             print(f'Match proposé: {match}')
-            if self.matches_not_ok([match], played_matches) is False:
+            if not self.matches_not_ok([match], played_matches):
                 # if len(set.intersection(played_matches, set(match))) == 0:
                 antagonists.remove(antagonist)
                 suggested_matches.append(match)
@@ -340,12 +343,10 @@ class Shift(Model):
         # trouver l'index de chaque dans la liste:
         # player_place_in_list_by_score = sorted_list.index(player)
 
-
 @dataclass
 class Match:  # à utiliser au min pour faire un str correct
     """
-    définit la classe Match, qui permet:
-    d'enregistrer les parties jouées et les scores
+    définit la classe Match
     """
     joueur_x: str
     joueur_y: str
@@ -369,10 +370,10 @@ if __name__ == "__main__":
     rapport = dbtools.Report()
     tournois = rapport.get_tournaments_list()
     joueurs = rapport.get_players_list()
-    # print(tournois)
-    print(joueurs)
+    # print(f"tournois dans la db : {tournois}")
+    # print(f"joueurs dans la db : {joueurs}")
 
-    tournoi = "Tournoi des cavaliers"
+    tournoi = "Tournoi des Reines"
     tournoi = tournoi.upper()
 
     def reset_tournament(tournoi):
@@ -386,17 +387,17 @@ if __name__ == "__main__":
             'ELITE',
             'FEZ',
             'GEANT',
-            'HULOT'
+            'HIBOU'
             ])
         database.change("name", tournoi, "matches", [])
         database.change("name", tournoi, "shifts", [])
         # database.change("name", tournoi, "number_of_rounds",4)
 
-    # reset_tournament(tournoi)
-    # database.delete("ATOME")
+    reset_tournament(tournoi)
+    # database.delete(tournoi)
 
     bidule = database.get_dict_from_db(tournoi)
-    # pprint(bidule)
+    pprint(bidule)
 
     match = [("A", "B"), ("H", "D"), ("C", "G"), ("E", "F")]
     played_matches = [("A", "E"), ("B", "F"), ("C", "G"), ("D", "H"), ("F", "D"), ("A", "G"), ("C", "H"), ("E", "B")]
@@ -421,4 +422,5 @@ if __name__ == "__main__":
         database.insert(joueur)
         print(joueur)
     """
+
     # database.change("name", "HULOT", "name","HIBOU")

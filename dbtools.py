@@ -132,7 +132,7 @@ class Database:
             result = db.get(Recherche.name == to_find).values()
             return list(result)
         else:
-            return False
+            return None
 
     def change(self, k, v, k_to_change, v_to_change):
         """

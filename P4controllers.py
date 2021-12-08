@@ -1,8 +1,8 @@
 import abc
 import datetime
 from dataclasses import dataclass
-import P4models
 import dbtools
+import P4models
 import P4views
 
 
@@ -77,7 +77,7 @@ class MenuManager(Controller):
                 tournament.select_players()
                 requested_manager = ManagerFactory("Menu tournois").make_menu()
             elif name == "Lancer le tournoi":
-                tournament = TournamentManager()
+                tournament = PlayTournament()
                 tournament.play_tournament()
             else:
                 requested_manager = ManagerFactory(name).make_form()
@@ -240,6 +240,7 @@ class TournamentManager(Controller):
             self.answers[4] = 4
 
     def add_new(self):
+        self.adapt_answers()
         try:
             tournament = P4models.Tournament(*self.answers)
         except ValueError:
@@ -251,7 +252,6 @@ class TournamentManager(Controller):
 
     def execute(self):
         """Ajoute un joueur dans la db depuis le formulaire"""
-        self.adapt_answers()
         self.add_new()
 
     def select_tournament(self):
@@ -297,9 +297,16 @@ class TournamentManager(Controller):
             else:
                 break
 
+
+class PlayTournament(Controller):
+    # attention : nouvelle classe 03/12/2021
+    def __init__(self):
+        pass
+
     def play_tournament(self):
         db = dbtools.Database()
-        tournoi_choisi = self.select_tournament()
+        manager = TournamentManager()
+        tournoi_choisi = manager.select_tournament()
         tournoi_dict: dict = db.get_dict_from_db(tournoi_choisi)
         instance_de_tournament: P4models.Tournament = P4models.Tournament(*tournoi_dict.values())
         total_scores = instance_de_tournament.initialize_total_scores()
