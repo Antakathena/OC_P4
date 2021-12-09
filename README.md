@@ -31,7 +31,7 @@ qui permettent d'avoir à un même endroit les informations que ces listes conti
     - la classe ManagerFactory, créé les objets menu ou questionnaire (classes précitées) au besoin
     - la classe ReportManager, qui affiche le bon rapport si c'est la demande
     - les classes PlayerManager et TournamentManager assistent à l'enregistrement de nouveaux éléments
-    - la classe PlayTournament s'occupe du déroulement du tournoi et des interactions entre modules pour ce faire.
+    - la classe PlayTournament s'occupe des interactions entre modules liées au déroulement du tournoi.
 
 ### Main :
 P4main.py
