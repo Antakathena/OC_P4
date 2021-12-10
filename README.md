@@ -52,4 +52,4 @@ $ cd ../chemin/du/dossier (de la copie de OC_P4 dans votre dossier env)
 
 $ pip install -r requirements.txt
 
-$ python Scrap_Bookstoscrap.py
+$ python P4main.py
