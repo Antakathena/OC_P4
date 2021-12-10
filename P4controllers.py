@@ -10,9 +10,11 @@ class Controller(abc.ABC):
     """Gère le stockage et la récupération d'information -> méthodes de recherche et de stockage en db
     Appelle les vues suivantes et déclenche les actions"""
     # Est-ce qu'il faut mettre des @abc.abstractmethod avant chaque?
+    """
     def __init__(self):
         self.player = P4models.Player()
         self.tournament = P4models.Tournament()
+    """
 
     def add_new(self):
         raise NotImplementedError
@@ -69,9 +71,9 @@ class MenuManager(Controller):
             if name.startswith("Menu"):
                 requested_manager = ManagerFactory(name).make_menu()
             elif name.startswith("Liste"):
-                report = ReportManager()
+                report = ReportManager(name)
                 report.react_to_answer()
-                requested_manager = ManagerFactory("Menu Rapports").make_menu()
+                requested_manager = ManagerFactory("Menu rapports").make_menu()
             elif name.startswith("Selectionner les joueurs"):
                 tournament = TournamentManager()
                 tournament.select_players()
@@ -96,48 +98,6 @@ class MenuManager(Controller):
         MenuManager.react_to_answer(back_to_menu, requested_manager)
 
 
-class ReportManager(Controller):
-    """
-    Obligatoires pour init: nom du rapport,
-    optionnel: tournoi (si infos tournoi).
-    Vue d'office reportview ou pas?
-    """
-
-    name: str
-    start: int = 1
-    tournament: str = None
-
-    def react_to_answer(self):
-        """Affiche un rapport en fonction de la demande de l'utilisateur:"""
-        infos = dbtools.Report()
-        view = P4views.ReportView(self.name)
-
-        # rapports liés à un tournois:
-        if self.tournament is not None:
-            database = dbtools.Database()
-            tournoi_dict: dict = database.get_dict_from_db(self.tournament)
-            tournament_players = tournoi_dict["players"]
-            controleurs = [
-                ("Liste des joueurs par ordre alphabétique", infos.sort_by_name(tournament_players)[1]),
-                ("Liste des joueurs par classement", infos.sort_by_rating(tournament_players)[1]),
-                ("Liste des matchs", tournoi_dict["matches"])
-                ("Liste des tours (déroulé du tournoi)", tournoi_dict["shifts"])
-            ]
-        # rapport généraux:
-        else:
-            controleurs = [
-                ("Liste des tournois", infos.get_tournaments_list()),
-                ("Liste des joueurs par ordre alphabétique", infos.sort_by_name(infos.get_players_list())[1]),
-                ("Liste des joueurs par classement", infos.sort_by_rating(infos.get_players_list())[1]),
-            ]
-
-        for controleur in controleurs:
-            if self.name == controleur[0]:
-                action = view.show(controleur[1])
-                return action()
-            else:
-                print("Pas de contrôleur associé à ce nom")
-                return False
 
 
 @dataclass
@@ -186,6 +146,48 @@ class ManagerFactory:
             view=P4views.FormView(self.name),
             start=self.start
         )
+
+
+@dataclass
+class ReportManager(Controller):
+    """
+    Obligatoires pour init: nom du rapport,
+    optionnel: tournoi (si infos tournoi).
+    Vue d'office reportview ou pas?
+    """
+    name: str
+    start: int = 1
+    tournament: str = None
+
+    def react_to_answer(self):
+        """Affiche un rapport en fonction de la demande de l'utilisateur:"""
+        infos = dbtools.Report()
+
+        # rapports liés à un tournois:
+        if self.tournament is not None:
+            tournament_players = infos.get_tournament_players(self.tournament)
+            controleurs = [
+                ("Liste des joueurs par ordre alphabétique", infos.sort_by_name(tournament_players)[1]),
+                ("Liste des joueurs par classement", infos.sort_by_rating(tournament_players)[1]),
+                ("Liste des matchs", infos.get_tournament_matches(self.tournament)),
+                ("Liste des tours (déroulé du tournoi)",  infos.get_tournament_shiftsinfos(self.tournament))
+            ]
+        # rapport généraux:
+        else:
+            controleurs = [
+                ("Liste des tournois", infos.get_tournaments_list()),
+                ("Liste des joueurs par ordre alphabétique", infos.sort_by_name(infos.get_players_list())[1]),
+                ("Liste des joueurs par classement", infos.sort_by_rating(infos.get_players_list())[1]),
+            ]
+
+        for controleur in controleurs:
+            if self.name == controleur[0]:
+                view = P4views.ReportView(self.name, controleur[1])
+                view.show()
+
+        if self.name not in controleurs:
+            print("Pas de contrôleur associé à ce nom")
+            return False
 
 
 class PlayerManager(Controller):
@@ -299,7 +301,6 @@ class TournamentManager(Controller):
 
 
 class PlayTournament(Controller):
-    # attention : nouvelle classe 03/12/2021
     def __init__(self):
         pass
 
@@ -318,13 +319,13 @@ class PlayTournament(Controller):
             print("Le nombre de joueurs n'est pas pair. Impossible de lancer le tournoi.")
             return MenuManager.back_to_main_menu()
 
-        # on peut rajouter une vue début du tour qui indique "Tour n°{shift_number} et liste des matchs":
-        shift = instance_de_tournament.which_shift()  # on créé un objet round
-        matches = shift.create_pairs_shift1()  # liste de tuples
+        shift = instance_de_tournament.which_shift()
+        matches = shift.create_pairs_shift1()
 
         while True:
             for match in matches:
-                print(f"match: {str(match)}")
+                match = P4models.Match(match)
+                print(match)
             shift.update_infos(matches=matches)  # utile?
             instance_de_tournament.add_to_matches(matches=matches)  # avt intervention c'était ({"matches" = matches})
             start_time = P4views.TournamentView.start_shift(shift)  # à ajouter à infos
@@ -340,6 +341,8 @@ class PlayTournament(Controller):
             instance_de_tournament.add_to_shifts(shift_infos=shift_infos)
 
             shift = instance_de_tournament.which_shift(shift.shift_number)
+            view = P4views.TournamentView.shift_show(shift.shift_number)
+            view()
 
             if shift is False:  # ça veut dire qu'on a fini le dernier tour.
                 print("\nFélicitations à tous les participants ! Le tournoi est terminé.\n")
