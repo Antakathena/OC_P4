@@ -78,21 +78,9 @@ class Tournament(Model):
     matches: list = field(default_factory=list)
     shifts: list = field(default_factory=list)
 
-    """
-    @property
-    def start_date(self):
-        return self.start_date
-
-    @start_date.setter
-    def start_date(self, value):
-        if value < datetime.datetime.now() or value > self.end_date:
-            raise ValueError
-        self._start_date = value
-    """
-
     def __str__(self):
         return f"{self.name}, à {self.location},\
- du: {self.start_date.strftime('%d/%m/%Y')}, au: {self.end_date.strftime('%d/%m/%Y')},\
+ du: {self.start_date.strftime('%d/%m/%Y')} au: {self.end_date.strftime('%d/%m/%Y')},\
  {self.number_of_rounds} tours, contrôle du temps: {self.timecontrol}. {self.description}"
 
     def add_to_playerslist(self, joueur):
@@ -342,6 +330,7 @@ class Shift(Model):
 
         # trouver l'index de chaque dans la liste:
         # player_place_in_list_by_score = sorted_list.index(player)
+
 
 @dataclass
 class Match:  # à utiliser au min pour faire un str correct

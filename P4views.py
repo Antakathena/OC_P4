@@ -21,12 +21,11 @@ MENUS_CHOICES = {
         "Entrer un nouveau tournoi",
         "Lancer le tournoi",
         "Menu principal"),
-    # "Menu lancer le round": ("Lancer le round","Menu principal"),
     "Menu rapports": (
-        "Liste des tournois",
-        "Menu informations tournois",
         "Liste des joueurs par classement",
         "Liste des joueurs par ordre alphabétique",
+        "Liste des tournois",
+        "Menu informations tournois",
         "Menu principal"),
     "Menu informations tournois": (
         "Liste des joueurs par ordre alphabétique",
@@ -85,7 +84,7 @@ class View(abc.ABC):
 
     def show_title(self):
         title = self.name.upper()
-        print(f"-----------{title}-----------")
+        print(f"\n-----------{title}-----------\n")
 
     @abc.abstractmethod
     def show(self):
@@ -197,7 +196,8 @@ class PrepTournamentView(View):
         super().show()
 
     def players_list(players_list):
-        print(f"{len(players_list)} joueurs dans le tournoi. Liste des joueurs: {players_list}")
+        print(f"{len(players_list)} joueurs dans le tournoi. Liste des joueurs:")
+        print(*players_list, sep=", ")
 
 
 class TournamentView(View):
@@ -207,6 +207,10 @@ class TournamentView(View):
     def show(self):
         super().show()
         print("-----------Tour n°1: Appeirage des joueurs...----------")
+
+    def shift_show(self, nbr):
+        print(f"-----------Nouveau tour\nTour n°{nbr}-----------")
+        print("-----------Appeirage des joueurs...----------")
 
     def start_shift(self):
         while True:
@@ -256,12 +260,17 @@ class TournamentView(View):
 
 
 class ReportView(View):
-    def __init__(self, name, start=1):
+    def __init__(self, name, infos, start=1):
         super().__init__(name)
+        self.infos = infos
         self.start = start
 
     def show(self):
         super().show()
+        print()
+        for num, elt in enumerate(self.infos, start=self.start):
+            print(f"{num}) {elt}")
+        print("\n     Fin du rapport     \n")
 
     if __name__ == "__main__":
         print("\n\n----------Essais sur les vues de training ----------")

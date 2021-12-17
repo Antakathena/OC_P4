@@ -230,7 +230,7 @@ class Report:
         sorted_list = sorted(sortable_list, key=lambda k: k["rating"], reverse=True)
         pretty_sorted_list = []
         for player in sorted_list:
-            pplayer = "{firstname} {name}, classement:{rating}".format(**player)
+            pplayer = "{firstname} {name}, classement: {rating}".format(**player)
             pretty_sorted_list.append(pplayer)
         return sorted_list, pretty_sorted_list
 
@@ -244,6 +244,24 @@ class Report:
             pplayer = "{firstname} {name}".format(**player)
             pretty_sorted_list.append(pplayer)
         return sorted_list, pretty_sorted_list
+
+    def get_tournament_players(self=db, tournaments_name: str = None):
+        database = Database()
+        tournoi_dict: dict = database.get_dict_from_db(tournaments_name)
+        tournament_players = tournoi_dict["players"]
+        return tournament_players
+
+    def get_tournament_matches(self=db, tournaments_name: str = None):
+        database = Database()
+        tournoi_dict: dict = database.get_dict_from_db(tournaments_name)
+        tournament_matches = tournoi_dict["matches"]
+        return tournament_matches
+
+    def get_tournament_shiftsinfos(self=db, tournaments_name: str = None):
+        database = Database()
+        tournoi_dict: dict = database.get_dict_from_db(tournaments_name)
+        tournament_shifts = tournoi_dict["shifts"]
+        return tournament_shifts
 
     def get_a_report(self=db, elt=None) -> list:
         if isinstance(elt, str):
