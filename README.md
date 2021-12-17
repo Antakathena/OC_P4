@@ -1,8 +1,9 @@
 # OC_P4
-OC_P4 est un programme python 3 de gestion de tournois d'échec, orienté POO, appliquant le pattern MVC.
+OC_P4 est un programme d'étude de python 3
+Il s'agit d'un programme de gestion de tournois d'échec, orienté POO, appliquant le pattern MVC.
 
 ## Infos Générales :
-Gestion tournois d'échec. OC_P4 utilise TinyDB pour conserver les informations sur les joueurs et les tournois.
+OC_P4 utilise TinyDB pour conserver les informations sur les joueurs et les tournois.
 Il est composé de 4 modules :
 - dbtools, qui contient les classes et fonctions liées à la database et aux rapports
 - P4models.py, comportant les modèles métier (classes liées aux joueurs et aux tournois)
@@ -32,6 +33,13 @@ qui permettent d'avoir à un même endroit les informations que ces listes conti
     - la classe ReportManager, qui affiche le bon rapport si c'est la demande
     - les classes PlayerManager et TournamentManager assistent à l'enregistrement de nouveaux éléments
     - la classe PlayTournament s'occupe des interactions entre modules liées au déroulement du tournoi.
+
+### Rapport flake8 html
+- Pour obtenir flake8-html il suffit de faire un pip install flake8-html
+- Le dossier inclu un rapport sans erreur
+- Pour obtenir un nouveau rapport il faut entrer dans le terminal :
+flake8 --exclude=env/ --max-line-length=119 --format=html --htmldir=flake-report
+Ce qui fait apparaitre le rapport à la racine du projet.
 
 ### Main :
 P4main.py

@@ -98,8 +98,6 @@ class MenuManager(Controller):
         MenuManager.react_to_answer(back_to_menu, requested_manager)
 
 
-
-
 @dataclass
 class FormManager(Controller):
     name: str
