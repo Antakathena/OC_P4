@@ -293,4 +293,3 @@ if __name__ == "__main__":
 
     # db.truncate()
 
-    # database.change("name", "HULOT", "name", "HIBOU")

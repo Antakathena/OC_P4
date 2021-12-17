@@ -7,36 +7,20 @@ import P4views
 
 
 class Controller(abc.ABC):
-    """Gère le stockage et la récupération d'information -> méthodes de recherche et de stockage en db
-    Appelle les vues suivantes et déclenche les actions"""
-    # Est-ce qu'il faut mettre des @abc.abstractmethod avant chaque?
     """
-    def __init__(self):
-        self.player = P4models.Player()
-        self.tournament = P4models.Tournament()
+    Gère la relation avec db tools (stockage et récupération d'information)
+    Appelle les méthodes des modèles (création d'objets, gestion du tournoi...)
+    Appelle les vues suivantes et déclenche les actions
     """
 
     def add_new(self):
         raise NotImplementedError
 
-    def change(self):
-        raise NotImplementedError
-
-    def delete(self):
-        raise NotImplementedError
-
-    def get_infos(self):
-        """récupère dans le modèle ou la database les infos nécessaires à l'action"""
-        raise NotImplementedError
-
-    def correct_infos(self):
-        """vérifier et corrige la teneur des données (types, longeur, etc)"""
-        raise NotImplementedError
-
-    def save(self):
-        raise NotImplementedError
-
-    def show(self):
+    def adapt_answers(self):
+        """
+        Vérifie et corrige la teneur des données (types, longeur, etc)
+        Pour transmettre correctement au modèle pour qu'il créé un objet
+        """
         raise NotImplementedError
 
     def execute(self):

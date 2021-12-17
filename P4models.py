@@ -99,9 +99,9 @@ class Tournament(Model):
         On lui passe un objet tournoi et le numéro du tour précédent.
         Elle renvoie l'instance de Shift (nom du tournoi, numéro du tour)"""
 
-        if shift_number <= int(self.number_of_rounds):  # il aurait fallu caster en int lors de la déserialization
+        if shift_number <= int(self.number_of_rounds):
             shift_number += 1
-            shift = Shift(self.name, shift_number)  # est-ce que je l'ajoute là à shift.infos = {}
+            shift = Shift(self.name, shift_number)
             shift.update_infos({"Tournament": self.name, "shift_number": shift_number})
             return shift
         else:
@@ -333,7 +333,7 @@ class Shift(Model):
 
 
 @dataclass
-class Match:  # à utiliser au min pour faire un str correct
+class Match:
     """
     définit la classe Match
     """
@@ -385,17 +385,9 @@ if __name__ == "__main__":
     reset_tournament(tournoi)
     # database.delete(tournoi)
 
-    bidule = database.get_dict_from_db(tournoi)
-    pprint(bidule)
+    info = database.get_dict_from_db(tournoi)
+    pprint(info)
 
-    match = [("A", "B"), ("H", "D"), ("C", "G"), ("E", "F")]
-    played_matches = [("A", "E"), ("B", "F"), ("C", "G"), ("D", "H"), ("F", "D"), ("A", "G"), ("C", "H"), ("E", "B")]
-    shift = Shift("Tournoi des reines", 3)
-    sorted_names_list = ["A", "B", "H", "D", "C", "G", "E", "F"]
-
-    # shift.matches_not_ok(match,played_matches)
-    # shift.propose_other_matches(sorted_names_list, played_matches)
-    # joueur1 = Player("ATOME", "Adam", datetime.datetime.strptime("01/01/1971", "%d/%m/%Y"), "homme", 2001 )
     """
     joueurs = [
         Player("ATOME", "Adam", datetime.datetime.strptime("01/01/1971", "%d/%m/%Y"), "h", 2001 ),
