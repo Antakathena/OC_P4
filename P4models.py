@@ -99,7 +99,7 @@ class Tournament(Model):
         On lui passe un objet tournoi et le numéro du tour précédent.
         Elle renvoie l'instance de Shift (nom du tournoi, numéro du tour)"""
 
-        if shift_number <= int(self.number_of_rounds):
+        if shift_number < int(self.number_of_rounds):
             shift_number += 1
             shift = Shift(self.name, shift_number)
             shift.update_infos({"Tournament": self.name, "shift_number": shift_number})
@@ -292,11 +292,23 @@ class Shift(Model):
         """
         set_propositions = set(suggested_matches)
         result = set.intersection(set_propositions, set(played_matches))
-        print(f'matchs déjà joués dans les proposés: {result}')
+        # print(f'matchs déjà joués dans les proposés: {result}')
         if len(result) != 0:
             return True
         else:
             return False
+
+    def can_be_played(players: list, played_matches) -> list[tuple]:
+        result = itertools.combinations(players, 2)
+        rev_played = []
+        for match in played_matches:
+            rev_match = match[::-1]
+            rev_played.append(rev_match)
+        can_be_played = []
+        for elt in result:
+            if elt not in played_matches and elt not in rev_played:
+                can_be_played.append(elt)
+        return can_be_played
 
     def propose_other_matches(self, sorted_names_list, played_matches):
         """ Si des matches parmis les proposés ont déjà été joués
@@ -308,28 +320,27 @@ class Shift(Model):
         joueur_x = protagonists.pop(0)
         antagonist = antagonists[0]
         test_opponent = antagonists[:]
+
         while len(suggested_matches) < search_opponent:
-            # for _ in range(search_opponent):
-            match = (joueur_x, antagonist)
-            print(f'Match proposé: {match}')
-            if not self.matches_not_ok([match], played_matches):
-                # if len(set.intersection(played_matches, set(match))) == 0:
-                antagonists.remove(antagonist)
-                suggested_matches.append(match)
-                test_opponent = antagonists[:]
-                if len(protagonists) > 0:
-                    joueur_x = protagonists.pop(0)
-                if len(antagonists) > 0:
-                    antagonist = antagonists[0]
-            else:
-                test_opponent.remove(antagonist)
-                antagonist = test_opponent[0]
-                continue
+            try:
+                try_match = (joueur_x, antagonist)
+                if not self.matches_not_ok([try_match], played_matches):
+                    antagonists.remove(antagonist)
+                    suggested_matches.append(try_match)
+                    test_opponent = antagonists[:]
+                    if len(protagonists) > 0:
+                        joueur_x = protagonists.pop(0)
+                    if len(antagonists) > 0:
+                        antagonist = antagonists[0]
+                else:
+                    test_opponent.remove(antagonist)
+                    antagonist = test_opponent[0]
+                    continue
+            except IndexError:
+                suggested_matches.append(try_match)
+
         assert len(suggested_matches) == 4
         return suggested_matches
-
-        # trouver l'index de chaque dans la liste:
-        # player_place_in_list_by_score = sorted_list.index(player)
 
 
 @dataclass
@@ -343,12 +354,15 @@ class Match:
     score_joueur_y: float = field(default=None)
 
     def __str__(self):
-        if self.score_joueur_x > self.score_joueur_y:
-            return f"Match {self.joueur_x} contre {self.joueur_y}. {self.joueur_x} vainqueur."
-        elif self.score_joueur_x < self.score_joueur_y:
-            return f"Match {self.joueur_x} contre {self.joueur_y}. {self.joueur_y} vainqueur."
-        else:
+        if self.score_joueur_x is None:
             return f"Match {self.joueur_x} contre {self.joueur_y}"
+        else:
+            if self.score_joueur_x > self.score_joueur_y:
+                return f"Match {self.joueur_x} contre {self.joueur_y}. {self.joueur_x} vainqueur."
+            elif self.score_joueur_x < self.score_joueur_y:
+                return f"Match {self.joueur_x} contre {self.joueur_y}. {self.joueur_y} vainqueur."
+            else:
+                return f"Match {self.joueur_x} contre {self.joueur_y} : égalité."
 
 
 if __name__ == "__main__":
@@ -382,7 +396,7 @@ if __name__ == "__main__":
         database.change("name", tournoi, "shifts", [])
         # database.change("name", tournoi, "number_of_rounds",4)
 
-    reset_tournament(tournoi)
+    # reset_tournament(tournoi)
     # database.delete(tournoi)
 
     info = database.get_dict_from_db(tournoi)

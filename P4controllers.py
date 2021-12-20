@@ -54,17 +54,26 @@ class MenuManager(Controller):
 
             if name.startswith("Menu"):
                 requested_manager = ManagerFactory(name).make_menu()
+
             elif name.startswith("Liste"):
                 report = ReportManager(name)
-                report.react_to_answer()
+                if "du tournoi" in name:
+                    manager = TournamentManager()
+                    chosen_tournament = manager.choose_tournament()
+                    report.react_to_answer(chosen_tournament[1])
+                else:
+                    report.react_to_answer()
                 requested_manager = ManagerFactory("Menu rapports").make_menu()
+
             elif name.startswith("Selectionner les joueurs"):
                 tournament = TournamentManager()
                 tournament.select_players()
                 requested_manager = ManagerFactory("Menu tournois").make_menu()
+
             elif name == "Lancer le tournoi":
                 tournament = PlayTournament()
                 tournament.play_tournament()
+
             else:
                 requested_manager = ManagerFactory(name).make_form()
                 answers = requested_manager.view.show()
@@ -92,15 +101,12 @@ class FormManager(Controller):
     def react_to_answer(self):
         """lance un formulaire en fonction de la demande de l'utilisateur"""
         answers = self.view.show()
-        print(answers)
         if "joueur" in self.name:
             PlayerManager(answers).execute()
-            # et revenir au menu joueur
         elif "tournoi" in self.name:
             TournamentManager(answers).execute()
-            # et revenir au menu tournoi
         else:
-            print(f"Je ne sais pas encore quoi faire avec {self.name} ")
+            print(f"Je ne sais pas quoi faire avec {self.name} ")
 
 
 @dataclass
@@ -133,43 +139,45 @@ class ManagerFactory:
 @dataclass
 class ReportManager(Controller):
     """
-    Obligatoires pour init: nom du rapport,
-    optionnel: tournoi (si infos tournoi).
-    Vue d'office reportview ou pas?
+    Classe de production des rapports. En lien avec les classes du module dbtools.
+    Il y a deux types de rapports :
+    - ceux qui concernent toute la base de donnée (tournoi = None).
+    Par exemple : les listes avec tous les joueurs.
+    - ceux qui concernent un tournoi spécifique, pour lesquels il faut préciser le tournoi.
     """
     name: str
     start: int = 1
-    tournament: str = None
 
-    def react_to_answer(self):
+    def react_to_answer(self, tournament=None):
         """Affiche un rapport en fonction de la demande de l'utilisateur:"""
         infos = dbtools.Report()
 
         # rapports liés à un tournois:
-        if self.tournament is not None:
-            tournament_players = infos.get_tournament_players(self.tournament)
-            controleurs = [
+        if tournament is not None:
+            tournament_players = infos.get_tournament_players(tournament)
+            controleurs_tournoi = [
                 ("Liste des joueurs par ordre alphabétique", infos.sort_by_name(tournament_players)[1]),
                 ("Liste des joueurs par classement", infos.sort_by_rating(tournament_players)[1]),
-                ("Liste des matchs", infos.get_tournament_matches(self.tournament)),
-                ("Liste des tours (déroulé du tournoi)",  infos.get_tournament_shiftsinfos(self.tournament))
+                ("Liste des matchs", infos.get_tournament_matches(tournament)),
+                ("Liste des tours (déroulé du tournoi)",  infos.get_tournament_shiftsinfos(tournament))
             ]
+            for controleur in controleurs_tournoi:
+                if self.name == controleur[0]:
+                    infos = controleur[1]
+                    view = P4views.ReportView(self.name, infos)
+                    view.show()
+            
         # rapport généraux:
-        else:
+        elif tournament is None:
             controleurs = [
                 ("Liste des tournois", infos.get_tournaments_list()),
                 ("Liste des joueurs par ordre alphabétique", infos.sort_by_name(infos.get_players_list())[1]),
                 ("Liste des joueurs par classement", infos.sort_by_rating(infos.get_players_list())[1]),
             ]
-
-        for controleur in controleurs:
-            if self.name == controleur[0]:
-                view = P4views.ReportView(self.name, controleur[1])
-                view.show()
-
-        if self.name not in controleurs:
-            print("Pas de contrôleur associé à ce nom")
-            return False
+            for controleur in controleurs:
+                if self.name == controleur[0]:
+                    view = P4views.ReportView(self.name, controleur[1])
+                    view.show()
 
 
 class PlayerManager(Controller):
@@ -193,7 +201,6 @@ class PlayerManager(Controller):
             database = dbtools.Database()
             database.insert(dataclass_instance_to_insert=player)
             # _logger.debug("Joueur ajouté à la base ...")
-            print(f"\n Joueur ajouté à la base de donnée: {player}\n")
 
     def execute(self):
         self.add_new()
@@ -250,15 +257,28 @@ class TournamentManager(Controller):
             tournoi_choisi = choices[answer]
             return tournoi_choisi
 
-    def select_players(self):
-        """Montre la liste des tournois pour choisir à quel tournoi on ajoute des joueurs.
-        Puis demande de saisir un nom. Ajoute le nom (ça devrait suffir) à la liste players dans ce tournoi.
-        Réagit si le nom y est déjà et prévient si la liste contient un nombre pair ou impair de joueurs."""
+    def choose_tournament(self):
+        """
+        Montre la liste des tournois pour permettre d'en choisir un.
+        """
         db = dbtools.Database()
         tournoi_choisi = self.select_tournament()
         tournoi_dict: dict = db.get_dict_from_db(tournoi_choisi)
         tournoi: P4models.Tournament = P4models.Tournament(*tournoi_dict.values())
         print(tournoi)
+        tournoi_dict: dict = db.get_dict_from_db(tournoi_choisi)
+        nom_du_tournoi: str = tournoi_dict["name"]
+        return(tournoi, nom_du_tournoi)
+
+    def select_players(self):
+        """
+        Montre la liste des tournois pour choisir à quel tournoi on ajoute des joueurs.
+        Puis demande de saisir un nom. Ajoute le nom (ça devrait suffir) à la liste players dans ce tournoi.
+        Réagit si le nom y est déjà et prévient si la liste contient un nombre pair ou impair de joueurs.
+        """
+        db = dbtools.Database()
+        tournoi_complet = self.choose_tournament()
+        tournoi = tournoi_complet[0]  # check après modif
         while True:
             players = [x for x in tournoi.players]
             P4views.PrepTournamentView.players_list(players)
@@ -306,30 +326,30 @@ class PlayTournament(Controller):
 
         while True:
             for match in matches:
-                match = P4models.Match(match)
+                match = P4models.Match(match[0], match[1])
                 print(match)
-            shift.update_infos(matches=matches)  # utile?
-            instance_de_tournament.add_to_matches(matches=matches)  # avt intervention c'était ({"matches" = matches})
-            start_time = P4views.TournamentView.start_shift(shift)  # à ajouter à infos
+            shift.update_infos(matches=matches)
+            instance_de_tournament.add_to_matches(matches=matches)  # précédemment ({"matches" = matches})
+            start_time = P4views.TournamentView.start_shift(shift)
             shift.update_infos(start_time=start_time)
             end_time = P4views.TournamentView.end_shift(shift)
             shift.update_infos(end_time=end_time)
-            scores = P4views.TournamentView.get_scores(shift, matches)  # [0] = liste de tuple, [1] = dict
-            total_scores.update(scores[1])
-            print(total_scores)
-            shift.update_infos(scores=scores[1])  # attention: changé de scores[0] tupple vide!
-            # à ce stade le dict des infos du tour est complet, on le passe au tournoi dans la db.
+            scores = P4views.TournamentView.get_scores(shift, matches)
+            total_scores.update(scores[1])  # [0] = liste de tuple, [1] = dict
+            shift.update_infos(scores=scores[1])
+
+            # à ce stade le dict des infos du tour est complet, on le passe au tournoi dans la db:
             shift_infos = shift.infos
             instance_de_tournament.add_to_shifts(shift_infos=shift_infos)
 
             shift = instance_de_tournament.which_shift(shift.shift_number)
-            view = P4views.TournamentView.shift_show(shift.shift_number)
-            view()
+            view = P4views.TournamentView()
 
-            if shift is False:  # ça veut dire qu'on a fini le dernier tour.
-                print("\nFélicitations à tous les participants ! Le tournoi est terminé.\n")
+            if shift is False:  # ajouter une vue pour récapituler le tournoi?
+                view.final()
                 break
             else:
+                view.shift_show(nbr=shift.shift_number)
                 matches = shift.create_pairs2(total_scores=total_scores)
                 continue
 

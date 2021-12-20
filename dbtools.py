@@ -127,8 +127,6 @@ class Database:
         Recherche = Query()
         to_find = str(to_find).upper()
         if db.contains(Recherche.name == to_find):
-            # resultat = db.search (Recherche.name.matches( a_chercher, flags=re.IGNORECASE))
-            # donne une liste avec tout le dico dedans
             result = db.get(Recherche.name == to_find).values()
             return list(result)
         else:
@@ -292,4 +290,3 @@ if __name__ == "__main__":
     # print(tout)
 
     # db.truncate()
-

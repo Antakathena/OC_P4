@@ -28,10 +28,10 @@ MENUS_CHOICES = {
         "Menu informations tournois",
         "Menu principal"),
     "Menu informations tournois": (
-        "Liste des joueurs par ordre alphabétique",
-        "Liste des joueurs par classement",
-        "Liste des matchs",
-        "Liste des tours (déroulé du tournoi)",
+        "Liste des joueurs du tournoi par ordre alphabétique",
+        "Liste des joueurs du tournoi par classement",
+        "Liste des matchs du tournoi",
+        "Liste des rondes du tournoi (déroulé du tournoi)",
         "Menu principal")
 }
 
@@ -209,12 +209,11 @@ class TournamentView(View):
         print("-----------Tour n°1: Appeirage des joueurs...----------")
 
     def shift_show(self, nbr):
-        print(f"-----------Nouveau tour\nTour n°{nbr}-----------")
-        print("-----------Appeirage des joueurs...----------")
+        print(f"\n-----------NOUVEAU TOUR. Tour n°{nbr}: Appeirage des joueurs...----------")
 
     def start_shift(self):
         while True:
-            answer = input("Commencer le tour?(l'heure sera automatiquement enregistrée.) (Saisir O)")
+            answer = input("\nCommencer le tour?(l'heure sera automatiquement enregistrée.) (Saisir O)")
             if answer == "O":
                 start_time = datetime.datetime.now()
                 print(start_time.strftime("%d/%m/%Y, %H:%M:%S"))
@@ -237,7 +236,7 @@ class TournamentView(View):
     def get_scores(self, pairings) -> dict:
         """Renvoie la liste de dictionnaires des matchs de round où
         joueur: score (vainqueur =1, perdant =0, ex-equo = 0.5)"""
-        # NB: liste de tuples demandé dans livret technique?
+
         possible_results = ["Joueur 1 gagne", "Joueur 2 gagne", "Egalité"]
         scores_dict = {}
         scores = []
@@ -256,7 +255,9 @@ class TournamentView(View):
             scores_dict.update(for_total_score)
             scores.append(match_score)
         return scores, scores_dict
-        # à ajouter à info round -> find_total_score dans P4Modeles.Tournament
+
+    def final(self):
+        print("\nFélicitations à tous les participants ! Le tournoi est terminé.\n")
 
 
 class ReportView(View):
@@ -271,6 +272,9 @@ class ReportView(View):
         for num, elt in enumerate(self.infos, start=self.start):
             print(f"{num}) {elt}")
         print("\n     Fin du rapport     \n")
+
+    def choose_tournament(self):
+        pass
 
     if __name__ == "__main__":
         print("\n\n----------Essais sur les vues de training ----------")
